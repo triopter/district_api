@@ -2,7 +2,6 @@
 
 import os
 import sys
-import my_package 
 
 try:
     from setuptools import setup
@@ -12,14 +11,14 @@ except ImportError:
 requires = ["requests >= 1.0.0"]
 
 setup(
-    name='districts',
-    version = districts.__version__,
+    name='district_api',
+    version = district_api.__version__,
     description='Python Client for NY Times Districts API',
     long_description=open('README.rst').read(),
     author='Noemi Millman',
     author_email='noemi@triopter.com',
     url='http://proj.example.com/',
-    packages=['districts'],
+    packages=['district_api'],
     install_requires=requires,
     license=open('LICENSE').read(),
     zip_safe=False,
