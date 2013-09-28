@@ -1,5 +1,6 @@
 from unittest import TestCase
 from requests import Request
+from mock import patch
 
 from district_api.api import DistrictApi, District, DistrictApiError, \
     ApiUnavailable, LocationUnavailable, AuthorizationError, QuotaExceeded

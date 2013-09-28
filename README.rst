@@ -7,9 +7,18 @@ Interface to the `NY Times Districts API <http://developer.nytimes.com/docs/dist
 Install
 =======
 
+This module's only necessary dependency is the requests module.
+
+::
+   
+   pip install requests
+   pip install -e git+<URL>
+   
+An additional list of dependencies for building the documentation and running tests can be found in REQUIREMENTS_FULL.TXT:
+
 ::
 
-   pip install -e git+<URL>
+   pip install -r REQUIREMENTS_FULL.TXT
 
 Configure
 =========
