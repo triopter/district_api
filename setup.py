@@ -2,6 +2,7 @@
 
 import os
 import sys
+import district_api
 
 try:
     from setuptools import setup
@@ -20,7 +21,7 @@ setup(
     url='http://proj.example.com/',
     packages=['district_api'],
     install_requires=requires,
-    license=open('LICENSE').read(),
+    license=open('LICENSE.TXT').read(),
     zip_safe=False,
     entry_points = {},
     classifiers = [
