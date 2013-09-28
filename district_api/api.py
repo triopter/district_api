@@ -92,8 +92,16 @@ class DistrictApi(object):
         
         super(DistrictApi, self).__init__(*args, **kwargs)
         
+    def get_all_districts(self):
+        """
+        Get information about all districts about which the API can provide data.
+        """
+        return {}
+    
     def get_districts(self, lat_lng):
         """
+        Get information about districts to which a given location belongs.
+        
         :param lat_lng: 2-tuple of latitude and longitude floats representing 
            the location for which district data should be retrieved -- e.g. 
            (34.6405, -85.3)
