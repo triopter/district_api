@@ -46,6 +46,30 @@ class ApiTestCase(TestCase):
         'Neighborhood': District('Upper West Side', 'Neighborhood', None),
         'State Senate': District('31', 'State Senate', 'http://graphics8.nytimes.com/packages/xml/represent/1396.xml'),
     }
+    success_response_str = """
+    {
+          "results": [
+            {
+              "district": "07",
+              "level": "Community District",
+              "kml_url": "http:\/\/graphics8.nytimes.com\/packages\/xml\/represent\/167.xml"
+            },
+            {
+              "district": "Upper West Side",
+              "level": "Neighborhood",
+              "kml_url": null
+            },
+            {
+              "district": "31",
+              "level": "State Senate",
+              "kml_url": "http:\/\/graphics8.nytimes.com\/packages\/xml\/represent\/1396.xml"
+            }
+          ],
+          "copyright": "Copyright (c) 2013 The New York Times Company. All Rights Reserved.",
+          "num_results": 7,
+          "status": "OK"
+        }
+    """
 
     def setUp(self):
         self.client = DistrictApi(self.api_key)
@@ -174,3 +198,15 @@ class ApiTestCase(TestCase):
                 'results': [ { 'a': 'b', }, { 'c': 'd', } ]
             })
     
+    @patch('requests.get')
+    def test_single_location_integration(self, get):
+        mock_resp = Mock()
+        mock_resp.text = self.success_response_str
+        mock_resp.status_code = 200
+        mock_resp.json.return_value = self.success_response_dict
+        
+        get.return_value = mock_resp
+        
+        districts = self.client.get_districts((12.3456, -10.432))
+            
+        self.assertEqual(districts, self.success_data)
