@@ -2,13 +2,14 @@
 
 import os
 import sys
+import district_api
 
 try:
     from setuptools import setup
 except ImportError:
     from distutils.core import setup
 
-requires = ["requests >= 1.0.0"]
+requires = ["requests >= 2.0.0"]
 
 setup(
     name='district_api',
@@ -20,7 +21,7 @@ setup(
     url='http://proj.example.com/',
     packages=['district_api'],
     install_requires=requires,
-    license=open('LICENSE').read(),
+    license=open('LICENSE.TXT').read(),
     zip_safe=False,
     entry_points = {},
     classifiers = [
