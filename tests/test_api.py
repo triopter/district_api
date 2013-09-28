@@ -5,7 +5,7 @@ from mock import patch, Mock
 
 from district_api.api import DistrictApi, District, DistrictApiError, \
     ApiUnavailable, LocationUnavailable, AuthorizationError, QuotaExceeded, \
-    BadRequest
+    BadRequest, InvalidResponse
 
 class ApiTestCase(TestCase):
     api_key = 'dummy'
@@ -18,6 +18,34 @@ class ApiTestCase(TestCase):
             "Reserved.",
         "status":"ERROR",
     }
+    success_response_dict = {
+        "results": [
+            {
+                "district": "07",
+                "level": "Community District",
+                "kml_url": "http://graphics8.nytimes.com/packages/xml/represent/167.xml"
+            },
+            {
+                "district": "Upper West Side",
+                "level": "Neighborhood",
+                "kml_url": None,
+            },
+            {
+                "district": "31",
+                "level": "State Senate",
+                "kml_url": "http://graphics8.nytimes.com/packages/xml/represent/1396.xml"
+            },
+        ],
+        "copyright": "Copyright (c) 2013 The New York Times Company. All Rights Reserved.",
+        "num_results": 7,
+        "status": "OK"
+    }
+    success_data = {
+        'Community District': District('07', 'Community District', 
+            'http://graphics8.nytimes.com/packages/xml/represent/167.xml'),
+        'Neighborhood': District('Upper West Side', 'Neighborhood', None),
+        'State Senate': District('31', 'State Senate', 'http://graphics8.nytimes.com/packages/xml/represent/1396.xml'),
+    }
 
     def setUp(self):
         self.client = DistrictApi(self.api_key)
@@ -29,34 +57,31 @@ class ApiTestCase(TestCase):
         other_client = DistrictApi(self.api_key, url='http://www.example.com')
         self.assertEqual(other_client.url, 'http://www.example.com')
 
-    @patch('requests.get')
-    def test_validation(self, get):
-        mock_resp = Mock(None)
-        mock_resp.status_code = 200
-        mock_resp.json = { 'status': 'OK', }
-        get.return_value = mock_resp
-        
-        with self.assertRaises(TypeError):
-            self.client.get_districts(12.3456, 10.432)
+    def test_validation(self):
+        with patch.object(self.client, 'get_data') as mock_get_data:
+            mock_get_data.return_value = {}
+
+            with self.assertRaises(TypeError):
+                self.client.get_districts(12.3456, 10.432)
             
-        with self.assertRaises(ValueError):
-            self.client.get_districts(('a', 10.432))
+            with self.assertRaises(ValueError):
+                self.client.get_districts(('a', 10.432))
             
-        with self.assertRaises(ValueError):
-            self.client.get_districts((10.432, 'a'))
+            with self.assertRaises(ValueError):
+                self.client.get_districts((10.432, 'a'))
             
-        try:
-            self.client.get_districts((12.3456, 10.432))
-            self.client.get_districts((12.3456, -10.432))
-            self.client.get_districts((12, 10))
-            self.client.get_districts((12, -10))
-            self.client.get_districts(('12.3456', '10.432'))
-            self.client.get_districts(('12.3456', '-10.432'))
-            self.client.get_districts(('12', '10'))
-            self.client.get_districts(('12', '-10'))
-        except (TypeError, ValueError):
-            self.fail('get_districts should accept float, int, and strings that '
-                'can be converted to floats/ints')
+            try:
+                self.client.get_districts((12.3456, 10.432))
+                self.client.get_districts((12.3456, -10.432))
+                self.client.get_districts((12, 10))
+                self.client.get_districts((12, -10))
+                self.client.get_districts(('12.3456', '10.432'))
+                self.client.get_districts(('12.3456', '-10.432'))
+                self.client.get_districts(('12', '10'))
+                self.client.get_districts(('12', '-10'))
+            except (TypeError, ValueError):
+                self.fail('get_districts should accept float, int, and strings that '
+                    'can be converted to floats/ints')
                 
     def test_construct_query_vars(self):
         qv = self.client.construct_query_vars(lat_lng=(12.3456, -10.432))
@@ -119,7 +144,28 @@ class ApiTestCase(TestCase):
             
     def test_validate_body(self): 
         with self.assertRaises(LocationUnavailable):
-            self.client.validate_response_body({ 'status': 'ERROR' })       
+            self.client.validate_response_body({ 'status': 'ERROR' })
             
+        with self.assertRaises(InvalidResponse):
+            self.client.validate_response_body({ 'a': 'ERROR' })       
             
+    def test_construct_single_location(self):
+        # success case
+        districts = self.client.construct_single_location_data(
+            self.success_response_dict)
+        
+        self.assertEqual(districts, self.success_data)
+        
+        with self.assertRaises(InvalidResponse):
+            self.client.construct_single_location_data(self.err_response_dict)
+        
+        with self.assertRaises(InvalidResponse):
+            self.client.construct_single_location_data({
+                'results': [ 1, 2, 3 ]
+            })
+            
+        with self.assertRaises(InvalidResponse):
+            self.client.construct_single_location_data({
+                'results': [ { 'a': 'b', }, { 'c': 'd', } ]
+            })
     
