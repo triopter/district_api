@@ -158,7 +158,7 @@ class DistrictApi(object):
         :rtype: dict
         """
         query_vars = {
-            'api_key': self.api_key,
+            'api-key': self.api_key,
         }
         
         if lat_lng:

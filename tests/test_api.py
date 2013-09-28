@@ -88,7 +88,7 @@ class ApiTestCase(TestCase):
         self.assertEqual(qv, {
                 'lat': 12.3456,
                 'lng': -10.432, 
-                'api_key': self.api_key,
+                'api-key': self.api_key,
             })
     
     @patch('requests.get')
@@ -98,13 +98,13 @@ class ApiTestCase(TestCase):
         get.assert_called_with(self.url, params={
                 'lat': 12.3456,
                 'lng': -10.432, 
-                'api_key': self.api_key,
+                'api-key': self.api_key,
             })
             
         self.client.send_request()
         self.assertTrue(get.called)
         get.assert_called_with(self.url, params={
-                'api_key': self.api_key,
+                'api-key': self.api_key,
             })
             
     def test_validate_status(self):
