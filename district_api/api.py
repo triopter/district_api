@@ -5,6 +5,8 @@
 .. moduleauthor:: Noemi Millman <noemi@triopter.com>
 """
 
+from requests import Request
+
 class DistrictApiError(Exception):
     """
     Parent class from which all other Districts API errors inherit.
@@ -91,7 +93,37 @@ class DistrictApi(object):
         self.url = kwargs.pop('url', 'http://api.nytimes.com/svc/politics/v2/districts.json')
         
         super(DistrictApi, self).__init__(*args, **kwargs)
+
+    def construct_query_vars(self, lat_lng=None):
+        """
+        Constructs the query string for our particular API query.  Called by 
+            ``send_request``.  This doesn't really need to be a separate method,
+            but it makes for easier unit testing.
+        """
+        query_vars = {
+            'api_key': self.api_key,
+        }
         
+        if lat_lng:
+            query_vars['lat'] = lat_lng[0]
+            query_vars['lng'] = lat_lng[1]
+        
+        return query_vars
+        
+    def send_request(self, lat_lng=None):
+        """
+        Construct query string; send HTTP request to API; return HTTP response.
+        
+        :param lat_lng: 2-tuple of latitude and longitude floats representing 
+           the location for which district data should be retrieved -- e.g. 
+           (34.6405, -85.3)
+        :type lat_lng: tuple of floats
+        :returns: raw HTTP response from API
+        :rtype: requests.Response
+        """
+        query_vars = self.construct_query_vars(lat_lng)
+        return Request('GET', self.url, data=query_vars).prepare()
+    
     def get_all_districts(self):
         """
         Get information about all districts about which the API can provide data.
