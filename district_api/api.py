@@ -267,7 +267,8 @@ class DistrictApi(object):
         
         # Validate response
         self.validate_response_body(data)
-        
+
+        return data
         
     def get_all_districts(self):
         """
