@@ -6,9 +6,15 @@ from district_api.api import DistrictApi, District, DistrictApiError, \
 class ApiTestCase(TestCase):
     def setUp(self):
         self.client = DistrictApi('dummy')
+        
+    def test_construction(self):
+        self.assertEqual(self.client.api_key, 'dummy')
+        self.assertEqual(self.client.url, 'http://api.nytimes.com/svc/politics/v2/districts.json')
 
-    def test_validation(self):
-    
+        other_client = DistrictApi('dummy', url='http://www.example.com')
+        self.assertEqual(other_client.url, 'http://www.example.com')
+
+    def test_validation(self):    
         with self.assertRaises(TypeError):
             self.client.get_districts(12.3456, 10.432)
             
