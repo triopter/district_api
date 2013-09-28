@@ -1,6 +1,5 @@
 """
-Python client for `NY Times Districts API 
-   <http://developer.nytimes.com/docs/districts_api>`_
+Python client for `NY Times Districts API <http://developer.nytimes.com/docs/districts_api>`_
 
 .. moduleauthor:: Noemi Millman <noemi@triopter.com>
 """

@@ -9,9 +9,8 @@ Welcome to districts-api's documentation!
 Contents:
 
 .. toctree::
+   district_api/modules
    :maxdepth: 2
-
-
 
 Indices and tables
 ==================
