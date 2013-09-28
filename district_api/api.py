@@ -89,10 +89,18 @@ class DistrictApi(object):
            the location for which district data should be retrieved -- e.g. 
            (34.6405, -85.3)
         :type lat_lng: tuple of floats
+        :raises: TypeError, ValueError
         :returns: Dictionary of District objects, indexed by level
         :rtype: dict
+        
+        Will throw uncaught TypeError if lat_lng is not iterable or ValueError 
+           if lat or lng are not floats.
+        If lat_lng contains more than 2 items, additional items will be ignored
         """
-        # Validate arguments
+        # Validate / convert arguments
+        lat = float(lat_lng[0])
+        lng = float(lat_lng[1])
+        
         # Construct request
         # Submit request
         # Parse response into dict
