@@ -82,6 +82,33 @@ class District(object):
         
         super(District, self).__init__(*args, **kwargs)
     
+    def __eq__(self, other):
+        try:      
+            return all((
+                self.district == other.district,
+                self.level == other.level,
+                self.kml_url == other.kml_url,
+            ))
+        
+        except AttributeError:
+            return False
+        
+    def __lt__(self, other):
+        # comparisons are different for numeric vs. non-numeric district names
+        try:
+            self_comp = int(self.district)
+            other_comp = int(other.district)
+            
+        except ValueError:
+            self_comp = self.district
+            other_comp = other.district
+            
+        except AttributeError:
+            raise TypeError('Cannot compare District object with object lacking '
+                '"district" attribute')
+        
+        return self_comp < other_comp
+        
 
 class DistrictApi(object):
     """
