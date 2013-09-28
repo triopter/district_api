@@ -43,3 +43,8 @@ Use
    
 .. note:: 
    Refer to `NY Times Documentation <http://developer.nytimes.com/docs/districts_api>`_ for details on specific data that may be returned
+
+More Information
+================
+
+Refer to docs directory for further info.
