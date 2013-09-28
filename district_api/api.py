@@ -163,7 +163,33 @@ class DistrictApi(object):
             
         # Unknown error status
         raise DistrictApiError(response)
+        
+    def parse_response(self, response):
+        """
+        Converts JSON from response body into a Python dict.
+        
+        :param requests.Response response: Response object returned by Times API
+        :returns: Dictionary containing district information and metadata
+        :rtype: dict
+        """
+        # the requests library will even parse JSON for us.  How easy is that?
+        return response.json
     
+    def validate_response_body(self, response_dict):
+        """
+        Handles cases where response status code is 200, but response body 
+        indicates an error, by raising custom exceptions
+        
+        :param dict response_dict: Dictionary containing response data parsed
+            from JSON returned by the Times API
+            
+        :raises: LocationUnavailable
+        """
+        status = response_dict.get('status')
+        if status != 'OK':
+            errs = response_dict.get('errors')
+            raise LocationUnavailable(errs)
+        
     def get_all_districts(self):
         """
         Get information about all districts about which the API can provide data.
@@ -209,7 +235,11 @@ class DistrictApi(object):
         self.validate_response(response)
         
         # Parse response into dict
+        data = self.parse_response(response)
+        
         # Validate response
+        self.validate_response_body(data)
+        
         # Convert returned data into Python objects
         return {}
         

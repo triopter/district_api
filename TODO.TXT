@@ -1,8 +1,8 @@
 - Move Exceptions into a separate module
-- Mock requests library
-- Test DistrictApi.send_request
-- Implement and test response parsing
+- Implement response dict conversion into useful format
+- Implement all-districts handling
 - Upload to Github
 - Flesh out setup.py and README w/ Github URLs
 - Create a Getting Started doc
+- Document format in which Times returns its data
 - Package for pypi?

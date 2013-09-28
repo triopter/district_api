@@ -1,5 +1,6 @@
-from unittest import TestCase
 import requests
+import json
+from unittest import TestCase
 from mock import patch, Mock
 
 from district_api.api import DistrictApi, District, DistrictApiError, \
@@ -9,6 +10,14 @@ from district_api.api import DistrictApi, District, DistrictApiError, \
 class ApiTestCase(TestCase):
     api_key = 'dummy'
     url = 'http://api.nytimes.com/svc/politics/v2/districts.json'
+    err_response_dict = { 
+        "errors": [
+            { "error": "Record not found", }, 
+        ],
+        "copyright": "Copyright (c) 2013 The New York Times Company. All Rights "
+            "Reserved.",
+        "status":"ERROR",
+    }
 
     def setUp(self):
         self.client = DistrictApi(self.api_key)
@@ -20,7 +29,13 @@ class ApiTestCase(TestCase):
         other_client = DistrictApi(self.api_key, url='http://www.example.com')
         self.assertEqual(other_client.url, 'http://www.example.com')
 
-    def test_validation(self):    
+    @patch('requests.get')
+    def test_validation(self, get):
+        mock_resp = Mock(None)
+        mock_resp.status_code = 200
+        mock_resp.json = { 'status': 'OK', }
+        get.return_value = mock_resp
+        
         with self.assertRaises(TypeError):
             self.client.get_districts(12.3456, 10.432)
             
@@ -69,40 +84,42 @@ class ApiTestCase(TestCase):
             
     def test_validate_status(self):
         with self.assertRaises(ApiUnavailable):
-            mock = Mock(None)
-            mock.status_code = 404
-            self.client.validate_response(mock)
+            mock_resp = Mock(None)
+            mock_resp.status_code = 404
+            self.client.validate_response(mock_resp)
             
         with self.assertRaises(ApiUnavailable):
-            mock = Mock(None)
-            mock.status_code = 500
-            self.client.validate_response(mock)
+            mock_resp = Mock(None)
+            mock_resp.status_code = 500
+            self.client.validate_response(mock_resp)
             
         with self.assertRaises(BadRequest):
-            mock = Mock(None)
-            mock.status_code = 400
-            self.client.validate_response(mock)
+            mock_resp = Mock(None)
+            mock_resp.status_code = 400
+            self.client.validate_response(mock_resp)
             
         with self.assertRaises(AuthorizationError):
-            mock = Mock(None)
-            mock.status_code = 403
-            self.client.validate_response(mock)
+            mock_resp = Mock(None)
+            mock_resp.status_code = 403
+            self.client.validate_response(mock_resp)
             
         with self.assertRaises(DistrictApiError):
-            mock = Mock(None)
-            mock.status_code = 406
-            self.client.validate_response(mock)
+            mock_resp = Mock(None)
+            mock_resp.status_code = 406
+            self.client.validate_response(mock_resp)
             
         # Make sure it doesn't raise on 200:
         try:
-            mock = Mock(None)
-            mock.status_code = 200
-            self.client.validate_response(mock)
+            mock_resp = Mock(None)
+            mock_resp.status_code = 200
+            self.client.validate_response(mock_resp)
         except:
             self.fail('validate_response should not raise any errors for a 200 '
                 'status code')
             
+    def test_validate_body(self): 
+        with self.assertRaises(LocationUnavailable):
+            self.client.validate_response_body({ 'status': 'ERROR' })       
             
             
-            
-            
+    
