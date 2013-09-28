@@ -130,7 +130,7 @@ class DistrictApi(object):
         :rtype: requests.Response
         """
         query_vars = self.construct_query_vars(lat_lng)
-        return requests.get(self.url, data=query_vars)
+        return requests.get(self.url, params=query_vars)
     
     def get_all_districts(self):
         """

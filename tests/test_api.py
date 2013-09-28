@@ -54,7 +54,7 @@ class ApiTestCase(TestCase):
     def test_send_request(self, get):
         self.client.send_request(lat_lng=(12.3456, -10.432))
         self.assertTrue(get.called)
-        get.assert_called_with(self.url, data={
+        get.assert_called_with(self.url, params={
                 'lat': 12.3456,
                 'lng': -10.432, 
                 'api_key': self.api_key,
@@ -62,7 +62,7 @@ class ApiTestCase(TestCase):
             
         self.client.send_request()
         self.assertTrue(get.called)
-        get.assert_called_with(self.url, data={
+        get.assert_called_with(self.url, params={
                 'api_key': self.api_key,
             })
             
