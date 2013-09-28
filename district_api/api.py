@@ -218,7 +218,7 @@ class DistrictApi(object):
         """
         # the requests library will even parse JSON for us.  How easy is that?
         try:
-            return response.json
+            return response.json()
         except ValueError:
             raise InvalidResponse(response.text)
     
@@ -257,7 +257,7 @@ class DistrictApi(object):
         :returns: Dictionary of raw data parsed from JSON API response
         :rtype: dict
         """
-        response = self.send_request((lat, lng,))
+        response = self.send_request(lat_lng)
         
         # validate response status code
         self.validate_response(response)
