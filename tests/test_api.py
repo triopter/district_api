@@ -3,9 +3,10 @@ import json
 from unittest import TestCase
 from mock import patch, Mock
 
-from district_api.api import DistrictApi, District, DistrictApiError, \
-    ApiUnavailable, LocationUnavailable, AuthorizationError, QuotaExceeded, \
-    BadRequest, InvalidResponse
+from district_api.api import DistrictApi, District
+from district_api.exceptions import DistrictApiError, ApiUnavailable, \
+    LocationUnavailable, AuthorizationError, QuotaExceeded, BadRequest, \
+    InvalidResponse
 
 class ApiTestCase(TestCase):
     api_key = 'dummy'
