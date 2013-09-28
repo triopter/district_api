@@ -56,6 +56,11 @@ class BadRequest(DistrictApiError):
     """
     pass
     
+class InvalidResponse(DistrictApiError):
+    """
+    Raised if dict parsed from JSON doesn't contain the keys / values expected.
+    """
+    pass    
 
 class District(object):
     """
