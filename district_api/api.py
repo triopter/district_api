@@ -5,7 +5,7 @@
 .. moduleauthor:: Noemi Millman <noemi@triopter.com>
 """
 
-from requests import Request
+import requests
 
 class DistrictApiError(Exception):
     """
@@ -130,7 +130,7 @@ class DistrictApi(object):
         :rtype: requests.Response
         """
         query_vars = self.construct_query_vars(lat_lng)
-        return Request('GET', self.url, data=query_vars).prepare()
+        return requests.get(self.url, data=query_vars)
     
     def get_all_districts(self):
         """
