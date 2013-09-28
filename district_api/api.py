@@ -86,7 +86,12 @@ class District(object):
         self.kml_url = kml_url
         
         super(District, self).__init__(*args, **kwargs)
-    
+        
+    def __repr__(self):
+        members = [(attrname, repr(getattr(self, attrname))) for attrname in (
+            'district', 'level', 'kml_url')]
+        return '<District %s>' % ' '.join(['%s=%s' % attr for attr in members])
+        
     def __eq__(self, other):
         try:      
             return all((
