@@ -47,6 +47,15 @@ class QuotaExceeded(DistrictApiError):
     """
     pass
     
+    
+class BadRequest(DistrictApiError):
+    """
+    Raised when server returns a 400 response.  It probably actually means we
+    screwed up somewhere in the API client logic, but at least this way you can 
+    catch it if you have to.
+    """
+    pass
+    
 
 class District(object):
     """
