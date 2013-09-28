@@ -47,6 +47,15 @@ class QuotaExceeded(DistrictApiError):
     """
     pass
     
+    
+class BadRequest(DistrictApiError):
+    """
+    Raised when server returns a 400 response.  It probably actually means we
+    screwed up somewhere in the API client logic, but at least this way you can 
+    catch it if you have to.
+    """
+    pass
+    
 
 class District(object):
     """
@@ -131,10 +140,67 @@ class DistrictApi(object):
         """
         query_vars = self.construct_query_vars(lat_lng)
         return requests.get(self.url, params=query_vars)
+        
+    def validate_response(self, response):
+        """
+        Handles cases where response status code is not 200, by raising custom
+        exceptions.
+        
+        :param requests.Response response: Response object returned by Times API
+        :raises: ApiUnavailable, AuthorizationError, BadRequest, DistrictApiError 
+        """
+        if response.status_code == 200:
+            return
+        
+        if response.status_code == 400:
+            raise BadRequest(response)
+            
+        if response.status_code in (404, 500):
+            raise ApiUnavailable(response)
+            
+        if response.status_code == 403:
+            raise AuthorizationError(response)
+            
+        # Unknown error status
+        raise DistrictApiError(response)
+        
+    def parse_response(self, response):
+        """
+        Converts JSON from response body into a Python dict.
+        
+        :param requests.Response response: Response object returned by Times API
+        :returns: Dictionary containing district information and metadata
+        :rtype: dict
+        """
+        # the requests library will even parse JSON for us.  How easy is that?
+        return response.json
     
+    def validate_response_body(self, response_dict):
+        """
+        Handles cases where response status code is 200, but response body 
+        indicates an error, by raising custom exceptions
+        
+        :param dict response_dict: Dictionary containing response data parsed
+            from JSON returned by the Times API
+            
+        :raises: LocationUnavailable
+        """
+        status = response_dict.get('status')
+        if status != 'OK':
+            errs = response_dict.get('errors')
+            raise LocationUnavailable(errs)
+        
     def get_all_districts(self):
         """
         Get information about all districts about which the API can provide data.
+        
+        :raises: ApiUnavailable, AuthorizationError, BadRequest, 
+            LocationUnavailable, DistrictApiError
+            
+        :returns: Dictionary containing a list of district objects for each 
+            electoral level
+            
+        :rtype: dict
         """
         return {}
     
@@ -142,18 +208,20 @@ class DistrictApi(object):
         """
         Get information about districts to which a given location belongs.
         
-        :param lat_lng: 2-tuple of latitude and longitude floats representing 
-           the location for which district data should be retrieved -- e.g. 
-           (34.6405, -85.3)
-        :type lat_lng: tuple of floats
-        :raises: TypeError, ValueError
-        :returns: Dictionary of District objects, indexed by level
-        :rtype: dict
-        
         Will throw uncaught TypeError if lat_lng is not iterable or ValueError 
         if lat or lng are not floats.
            
         If lat_lng contains more than 2 items, additional items will be ignored
+        
+        :param lat_lng: 2-tuple of latitude and longitude floats representing 
+           the location for which district data should be retrieved -- e.g. 
+           (34.6405, -85.3)
+        :type lat_lng: tuple of floats
+        :raises: TypeError, ValueError, ApiUnavailable, AuthorizationError, 
+            BadRequest, LocationUnavailable, DistrictApiError
+            
+        :returns: Dictionary of District objects, indexed by level
+        :rtype: dict
         """
         # Validate / convert arguments
         lat = float(lat_lng[0])
@@ -161,8 +229,17 @@ class DistrictApi(object):
         
         # Construct request
         # Submit request
+        response = self.send_request((lat, lng,))
+        
+        # validate response status code
+        self.validate_response(response)
+        
         # Parse response into dict
+        data = self.parse_response(response)
+        
         # Validate response
+        self.validate_response_body(data)
+        
         # Convert returned data into Python objects
         return {}
         
