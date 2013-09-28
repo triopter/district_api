@@ -75,12 +75,21 @@ class District(object):
 class DistrictApi(object):
     """
     NY Times Districts API client.
+
+    :ivar string api_key: NY Times Districts API key. Obtained from 
+       `NY Times Developer Network <http://developer.nytimes.com/apps/register/>`_
+    :ivar string url: Endpoint for NY Times Districts API.  Defaults to URL
+        specified in `the docs <http://developer.nytimes.com/docs/districts_api>`_
     """
     def __init__(self, api_key, *args, **kwargs):
         """
         :param string api_key: NY Times Districts API key. Obtained from 
            `NY Times Developer Network <http://developer.nytimes.com/apps/register/>`_
+        :param string url: Override API endpoint (used mostly for testing)
         """
+        self.api_key = api_key
+        self.url = kwargs.pop('url', 'http://api.nytimes.com/svc/politics/v2/districts.json')
+        
         super(DistrictApi, self).__init__(*args, **kwargs)
         
     def get_districts(self, lat_lng):
