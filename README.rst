@@ -34,10 +34,10 @@ Use
 
 .. code-block:: Python
 
-   >>> from district_api.api import DistrictsApi
+   >>> from district_api.api import DistrictApi
    
    >>> # Instantiate client
-   >>> client = DistrictsApi('my_api_key_here')
+   >>> client = DistrictApi('my_api_key_here')
    
    >>> # Get the districts for a location in NYC
    >>> lat_lng = (40.606031, -74.082686,)
