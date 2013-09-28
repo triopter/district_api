@@ -111,10 +111,13 @@ class DistrictApi(object):
             
         :param lat_lng: 2-tuple of latitude and longitude floats representing 
            the location for which district data should be retrieved -- e.g. 
-           (34.6405, -85.3)
+           (34.6405, -85.3).  If omitted, data for all available districts will 
+           be returned.
+           
         :type lat_lng: tuple of floats
         :returns: Dictionary of variables that should be included in the query 
            string when querying the API
+           
         :rtype: dict
         """
         query_vars = {
@@ -133,7 +136,9 @@ class DistrictApi(object):
         
         :param lat_lng: 2-tuple of latitude and longitude floats representing 
            the location for which district data should be retrieved -- e.g. 
-           (34.6405, -85.3)
+           (34.6405, -85.3).  If omitted, data for all available districts will 
+           be returned.
+           
         :type lat_lng: tuple of floats
         :returns: raw HTTP response from API
         :rtype: requests.Response
@@ -189,6 +194,31 @@ class DistrictApi(object):
         if status != 'OK':
             errs = response_dict.get('errors')
             raise LocationUnavailable(errs)
+            
+    def get_data(self, lat_lng=None):
+        """
+        Construct query string; send HTTP request to API; return HTTP response.
+        
+        :param lat_lng: *(optional)* 2-tuple of latitude and longitude floats 
+            representing the location for which district data should be 
+            retrieved -- e.g. (34.6405, -85.3).  If omitted, data for all 
+            available districts will be returned.
+           
+        :type lat_lng: tuple of floats or None
+        :returns: Dictionary of raw data parsed from JSON API response
+        :rtype: dict
+        """
+        response = self.send_request((lat, lng,))
+        
+        # validate response status code
+        self.validate_response(response)
+        
+        # Parse response into dict
+        data = self.parse_response(response)
+        
+        # Validate response
+        self.validate_response_body(data)
+        
         
     def get_all_districts(self):
         """
@@ -223,22 +253,11 @@ class DistrictApi(object):
         :returns: Dictionary of District objects, indexed by level
         :rtype: dict
         """
-        # Validate / convert arguments
+        # Validate arguments
         lat = float(lat_lng[0])
         lng = float(lat_lng[1])
         
-        # Construct request
-        # Submit request
-        response = self.send_request((lat, lng,))
-        
-        # validate response status code
-        self.validate_response(response)
-        
-        # Parse response into dict
-        data = self.parse_response(response)
-        
-        # Validate response
-        self.validate_response_body(data)
+        data = self.get_data((lat, lng,))
         
         # Convert returned data into Python objects
         return {}
