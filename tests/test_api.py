@@ -58,8 +58,13 @@ class ApiTestCase(TestCase):
         self.assertEqual(other_client.url, 'http://www.example.com')
 
     def test_validation(self):
-        with patch.object(self.client, 'get_data') as mock_get_data:
-            mock_get_data.return_value = {}
+        mock_get_data = Mock()
+        mock_get_data.return_value = {}
+        mock_construct = Mock()
+        mock_construct.return_value = {}
+        
+        with patch.multiple(self.client, get_data=mock_get_data, 
+            construct_single_location_data=mock_construct):
 
             with self.assertRaises(TypeError):
                 self.client.get_districts(12.3456, 10.432)
