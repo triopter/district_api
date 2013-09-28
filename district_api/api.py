@@ -5,7 +5,7 @@
 .. moduleauthor:: Noemi Millman <noemi@triopter.com>
 """
 
-class DistrictsApiError(Exception):
+class DistrictApiError(Exception):
     """
     Parent class from which all other Districts API errors inherit.
     
@@ -13,14 +13,14 @@ class DistrictsApiError(Exception):
     """
     pass
 
-class ApiUnavailable(DistrictsApiError):
+class ApiUnavailable(DistrictApiError):
     """
     Thrown when network or server errors are encountered.
     """
     pass
     
     
-class LocationUnavailable(DistrictsApiError):
+class LocationUnavailable(DistrictApiError):
     """
     As of this writing, the Times' Districts API only offers data for New York 
        City districts. This exception is thrown when the API returns a response
@@ -29,14 +29,14 @@ class LocationUnavailable(DistrictsApiError):
     pass
     
     
-class AuthorizationError(DistrictsApiError):
+class AuthorizationError(DistrictApiError):
     """
     Receiving this error probably means your API key is invalid.
     """
     pass
     
     
-class QuotaExceeded(DistrictsApiError):
+class QuotaExceeded(DistrictApiError):
     """
     Currently unused (because we haven't hit our quota and thus haven't been 
         able to see what the API returns in this case!)
@@ -72,7 +72,7 @@ class District(object):
         super(District, self).__init__(*args, **kwargs)
     
 
-class DistrictsApi(object):
+class DistrictApi(object):
     """
     NY Times Districts API client.
     """
@@ -81,7 +81,7 @@ class DistrictsApi(object):
         :param string api_key: NY Times Districts API key. Obtained from 
            `NY Times Developer Network <http://developer.nytimes.com/apps/register/>`_
         """
-        super(DistrictsApi, self).__init__(*args, **kwargs)
+        super(DistrictApi, self).__init__(*args, **kwargs)
         
     def get_districts(self, lat_lng):
         """
