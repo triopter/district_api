@@ -5,7 +5,7 @@ from mock import patch, Mock
 
 from district_api.api import DistrictApi, District, DistrictApiError, \
     ApiUnavailable, LocationUnavailable, AuthorizationError, QuotaExceeded, \
-    BadRequest
+    BadRequest, InvalidResponse
 
 class ApiTestCase(TestCase):
     api_key = 'dummy'
@@ -116,7 +116,8 @@ class ApiTestCase(TestCase):
             
     def test_validate_body(self): 
         with self.assertRaises(LocationUnavailable):
-            self.client.validate_response_body({ 'status': 'ERROR' })       
+            self.client.validate_response_body({ 'status': 'ERROR' })
             
+        with self.assertRaises(InvalidResponse):
+            self.client.validate_response_body({ 'a': 'ERROR' })
             
-    

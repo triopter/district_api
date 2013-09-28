@@ -211,11 +211,16 @@ class DistrictApi(object):
         Converts JSON from response body into a Python dict.
         
         :param requests.Response response: Response object returned by Times API
+        
+        :raises: InvalidResponse
         :returns: Dictionary containing district information and metadata
         :rtype: dict
         """
         # the requests library will even parse JSON for us.  How easy is that?
-        return response.json
+        try:
+            return response.json
+        except ValueError:
+            raise InvalidResponse(response.text)
     
     def validate_response_body(self, response_dict):
         """
@@ -225,9 +230,13 @@ class DistrictApi(object):
         :param dict response_dict: Dictionary containing response data parsed
             from JSON returned by the Times API
             
-        :raises: LocationUnavailable
+        :raises: LocationUnavailable, InvalidResponse
         """
         status = response_dict.get('status')
+        
+        if not status:
+            raise InvalidResponse(response_dict)
+
         if status != 'OK':
             errs = response_dict.get('errors')
             raise LocationUnavailable(errs)
