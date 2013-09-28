@@ -47,7 +47,7 @@ source_suffix = '.rst'
 master_doc = 'index'
 
 # General information about the project.
-project = u'districts-api'
+project = u'district-api'
 copyright = u'2013, Noemi Millman'
 
 # The version info for the project you're documenting, acts as replacement for
@@ -180,7 +180,7 @@ html_static_path = ['_static']
 #html_file_suffix = None
 
 # Output file base name for HTML help builder.
-htmlhelp_basename = 'districts-apidoc'
+htmlhelp_basename = 'district-apidoc'
 
 
 # -- Options for LaTeX output ---------------------------------------------
@@ -200,7 +200,7 @@ latex_elements = {
 # (source start file, target name, title,
 #  author, documentclass [howto/manual]).
 latex_documents = [
-  ('index', 'districts-api.tex', u'districts-api Documentation',
+  ('index', 'district-api.tex', u'district-api Documentation',
    u'Noemi Millman', 'manual'),
 ]
 
@@ -230,7 +230,7 @@ latex_documents = [
 # One entry per manual page. List of tuples
 # (source start file, name, description, authors, manual section).
 man_pages = [
-    ('index', 'districts-api', u'districts-api Documentation',
+    ('index', 'district-api', u'district-api Documentation',
      [u'Noemi Millman'], 1)
 ]
 
@@ -244,8 +244,8 @@ man_pages = [
 # (source start file, target name, title, author,
 #  dir menu entry, description, category)
 texinfo_documents = [
-  ('index', 'districts-api', u'districts-api Documentation',
-   u'Noemi Millman', 'districts-api', 'One line description of project.',
+  ('index', 'district-api', u'district-api Documentation',
+   u'Noemi Millman', 'district-api', 'One line description of project.',
    'Miscellaneous'),
 ]
 
