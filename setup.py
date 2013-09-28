@@ -4,6 +4,12 @@ import os
 import sys
 import district_api
 
+# We're using Python 2.6+ features
+if not (sys.version_info.major == 2 and sys.version_info.minor >= 6):    
+    print "This package requires Python 2.6+.  Installation aborted."
+    exit()
+
+
 try:
     from setuptools import setup
 except ImportError:
