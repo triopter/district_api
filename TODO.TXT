@@ -1,0 +1,8 @@
+- Move Exceptions into a separate module
+- Mock requests library
+- Test DistrictApi.send_request
+- Implement and test response parsing
+- Upload to Github
+- Flesh out setup.py and README w/ Github URLs
+- Create a Getting Started doc
+- Package for pypi?

@@ -5,6 +5,8 @@
 .. moduleauthor:: Noemi Millman <noemi@triopter.com>
 """
 
+import requests
+
 class DistrictApiError(Exception):
     """
     Parent class from which all other Districts API errors inherit.
@@ -23,8 +25,8 @@ class ApiUnavailable(DistrictApiError):
 class LocationUnavailable(DistrictApiError):
     """
     As of this writing, the Times' Districts API only offers data for New York 
-       City districts. This exception is thrown when the API returns a response
-       indicating that the lat/long given are outside the area covered.       
+    City districts. This exception is thrown when the API returns a response
+    indicating that the lat/long given are outside the area covered.       
     """
     pass
     
@@ -39,7 +41,7 @@ class AuthorizationError(DistrictApiError):
 class QuotaExceeded(DistrictApiError):
     """
     Currently unused (because we haven't hit our quota and thus haven't been 
-        able to see what the API returns in this case!)
+    able to see what the API returns in this case!)
         
     When we do get this running, well, it'll mean you've exceeded your quota.
     """
@@ -75,16 +77,71 @@ class District(object):
 class DistrictApi(object):
     """
     NY Times Districts API client.
+
+    :ivar string api_key: NY Times Districts API key. Obtained from 
+       `NY Times Developer Network <http://developer.nytimes.com/apps/register/>`_
+    :ivar string url: Endpoint for NY Times Districts API.  Defaults to URL
+        specified in `the docs <http://developer.nytimes.com/docs/districts_api>`_
     """
     def __init__(self, api_key, *args, **kwargs):
         """
         :param string api_key: NY Times Districts API key. Obtained from 
            `NY Times Developer Network <http://developer.nytimes.com/apps/register/>`_
+        :param string url: Override API endpoint (used mostly for testing)
         """
-        super(DistrictApi, self).__init__(*args, **kwargs)
+        self.api_key = api_key
+        self.url = kwargs.pop('url', 'http://api.nytimes.com/svc/politics/v2/districts.json')
         
+        super(DistrictApi, self).__init__(*args, **kwargs)
+
+    def construct_query_vars(self, lat_lng=None):
+        """
+        Constructs the query string for our particular API query.  Called by 
+        ``send_request``.  This doesn't really need to be a separate method,
+        but it makes for easier unit testing.
+            
+        :param lat_lng: 2-tuple of latitude and longitude floats representing 
+           the location for which district data should be retrieved -- e.g. 
+           (34.6405, -85.3)
+        :type lat_lng: tuple of floats
+        :returns: Dictionary of variables that should be included in the query 
+           string when querying the API
+        :rtype: dict
+        """
+        query_vars = {
+            'api_key': self.api_key,
+        }
+        
+        if lat_lng:
+            query_vars['lat'] = lat_lng[0]
+            query_vars['lng'] = lat_lng[1]
+        
+        return query_vars
+        
+    def send_request(self, lat_lng=None):
+        """
+        Construct query string; send HTTP request to API; return HTTP response.
+        
+        :param lat_lng: 2-tuple of latitude and longitude floats representing 
+           the location for which district data should be retrieved -- e.g. 
+           (34.6405, -85.3)
+        :type lat_lng: tuple of floats
+        :returns: raw HTTP response from API
+        :rtype: requests.Response
+        """
+        query_vars = self.construct_query_vars(lat_lng)
+        return requests.get(self.url, params=query_vars)
+    
+    def get_all_districts(self):
+        """
+        Get information about all districts about which the API can provide data.
+        """
+        return {}
+    
     def get_districts(self, lat_lng):
         """
+        Get information about districts to which a given location belongs.
+        
         :param lat_lng: 2-tuple of latitude and longitude floats representing 
            the location for which district data should be retrieved -- e.g. 
            (34.6405, -85.3)
@@ -94,7 +151,8 @@ class DistrictApi(object):
         :rtype: dict
         
         Will throw uncaught TypeError if lat_lng is not iterable or ValueError 
-           if lat or lng are not floats.
+        if lat or lng are not floats.
+           
         If lat_lng contains more than 2 items, additional items will be ignored
         """
         # Validate / convert arguments
