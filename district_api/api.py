@@ -251,6 +251,9 @@ class DistrictApi(object):
             available districts will be returned.
            
         :type lat_lng: tuple of floats or None
+        :raises: TypeError, ValueError, ApiUnavailable, AuthorizationError, 
+            BadRequest, LocationUnavailable, InvalidResponse, DistrictApiError
+            
         :returns: Dictionary of raw data parsed from JSON API response
         :rtype: dict
         """
@@ -271,7 +274,7 @@ class DistrictApi(object):
         Get information about all districts about which the API can provide data.
         
         :raises: ApiUnavailable, AuthorizationError, BadRequest, 
-            LocationUnavailable, DistrictApiError
+            LocationUnavailable, InvalidResponse, DistrictApiError
             
         :returns: Dictionary containing a list of district objects for each 
             electoral level
@@ -279,6 +282,35 @@ class DistrictApi(object):
         :rtype: dict
         """
         return {}
+        
+    def construct_single_location_data(self, data):
+        """
+        Converts dict containing list of district data dicts into dict of 
+        District objects.
+        
+        :param dict data: Dictionary of data parsed form API response JSON
+        :raises: InvalidResponse
+        :returns: Dictionary of District objects, indexed by electoral level
+        :rtype: dict
+        """
+        districts = {}
+        
+        try:
+            results = data['results']
+        except KeyError:
+            raise InvalidResponse(data)
+        
+        try:
+            for result in results:
+                district = District(result['district'], result['level'], 
+                    result['kml_url'])
+                districts[result['level']] = district
+                
+        except (KeyError, TypeError):
+            raise InvalidResponse(result)
+            
+        return districts
+        
     
     def get_districts(self, lat_lng):
         """
@@ -294,7 +326,7 @@ class DistrictApi(object):
            (34.6405, -85.3)
         :type lat_lng: tuple of floats
         :raises: TypeError, ValueError, ApiUnavailable, AuthorizationError, 
-            BadRequest, LocationUnavailable, DistrictApiError
+            BadRequest, LocationUnavailable, InvalidResponse, DistrictApiError
             
         :returns: Dictionary of District objects, indexed by level
         :rtype: dict

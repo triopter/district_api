@@ -18,6 +18,34 @@ class ApiTestCase(TestCase):
             "Reserved.",
         "status":"ERROR",
     }
+    success_response_dict = {
+        "results": [
+            {
+                "district": "07",
+                "level": "Community District",
+                "kml_url": "http://graphics8.nytimes.com/packages/xml/represent/167.xml"
+            },
+            {
+                "district": "Upper West Side",
+                "level": "Neighborhood",
+                "kml_url": None,
+            },
+            {
+                "district": "31",
+                "level": "State Senate",
+                "kml_url": "http://graphics8.nytimes.com/packages/xml/represent/1396.xml"
+            },
+        ],
+        "copyright": "Copyright (c) 2013 The New York Times Company. All Rights Reserved.",
+        "num_results": 7,
+        "status": "OK"
+    }
+    success_data = {
+        'Community District': District('07', 'Community District', 
+            'http://graphics8.nytimes.com/packages/xml/represent/167.xml'),
+        'Neighborhood': District('Upper West Side', 'Neighborhood', None),
+        'State Senate': District('31', 'State Senate', 'http://graphics8.nytimes.com/packages/xml/represent/1396.xml'),
+    }
 
     def setUp(self):
         self.client = DistrictApi(self.api_key)
@@ -119,5 +147,25 @@ class ApiTestCase(TestCase):
             self.client.validate_response_body({ 'status': 'ERROR' })
             
         with self.assertRaises(InvalidResponse):
-            self.client.validate_response_body({ 'a': 'ERROR' })
+            self.client.validate_response_body({ 'a': 'ERROR' })       
             
+    def test_construct_single_location(self):
+        # success case
+        districts = self.client.construct_single_location_data(
+            self.success_response_dict)
+        
+        self.assertEqual(districts, self.success_data)
+        
+        with self.assertRaises(InvalidResponse):
+            self.client.construct_single_location_data(self.err_response_dict)
+        
+        with self.assertRaises(InvalidResponse):
+            self.client.construct_single_location_data({
+                'results': [ 1, 2, 3 ]
+            })
+            
+        with self.assertRaises(InvalidResponse):
+            self.client.construct_single_location_data({
+                'results': [ { 'a': 'b', }, { 'c': 'd', } ]
+            })
+    

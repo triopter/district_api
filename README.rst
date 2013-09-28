@@ -7,7 +7,7 @@ Interface to the `NY Times Districts API <http://developer.nytimes.com/docs/dist
 Install
 =======
 
-This module's only necessary dependency is the requests module.
+This module's only necessary external dependency is the requests module.
 
 ::
    
