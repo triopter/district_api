@@ -338,6 +338,6 @@ class DistrictApi(object):
         data = self.get_data((lat, lng,))
         
         # Convert returned data into Python objects
-        return {}
+        return self.construct_single_location_data(data)
         
         
