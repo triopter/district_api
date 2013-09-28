@@ -12,6 +12,14 @@ district_api.api module
     :undoc-members:
     :show-inheritance:
 
+district_api.exceptions module
+------------------------------
+
+.. automodule:: district_api.exceptions
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
 
 Module contents
 ---------------

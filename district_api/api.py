@@ -6,61 +6,9 @@
 """
 
 import requests
-
-class DistrictApiError(Exception):
-    """
-    Parent class from which all other Districts API errors inherit.
-    
-    Used for any other generic exceptions.
-    """
-    pass
-
-class ApiUnavailable(DistrictApiError):
-    """
-    Thrown when network or server errors are encountered.
-    """
-    pass
-    
-    
-class LocationUnavailable(DistrictApiError):
-    """
-    As of this writing, the Times' Districts API only offers data for New York 
-    City districts. This exception is thrown when the API returns a response
-    indicating that the lat/long given are outside the area covered.       
-    """
-    pass
-    
-    
-class AuthorizationError(DistrictApiError):
-    """
-    Receiving this error probably means your API key is invalid.
-    """
-    pass
-    
-    
-class QuotaExceeded(DistrictApiError):
-    """
-    Currently unused (because we haven't hit our quota and thus haven't been 
-    able to see what the API returns in this case!)
-        
-    When we do get this running, well, it'll mean you've exceeded your quota.
-    """
-    pass
-    
-    
-class BadRequest(DistrictApiError):
-    """
-    Raised when server returns a 400 response.  It probably actually means we
-    screwed up somewhere in the API client logic, but at least this way you can 
-    catch it if you have to.
-    """
-    pass
-    
-class InvalidResponse(DistrictApiError):
-    """
-    Raised if dict parsed from JSON doesn't contain the keys / values expected.
-    """
-    pass    
+from district_api.exceptions import DistrictApiError, ApiUnavailable, \
+    LocationUnavailable, AuthorizationError, QuotaExceeded, BadRequest, \
+    InvalidResponse
 
 class District(object):
     """
@@ -158,7 +106,7 @@ class DistrictApi(object):
         :rtype: dict
         """
         query_vars = {
-            'api_key': self.api_key,
+            'api-key': self.api_key,
         }
         
         if lat_lng:
@@ -218,7 +166,7 @@ class DistrictApi(object):
         """
         # the requests library will even parse JSON for us.  How easy is that?
         try:
-            return response.json
+            return response.json()
         except ValueError:
             raise InvalidResponse(response.text)
     
@@ -257,7 +205,7 @@ class DistrictApi(object):
         :returns: Dictionary of raw data parsed from JSON API response
         :rtype: dict
         """
-        response = self.send_request((lat, lng,))
+        response = self.send_request(lat_lng)
         
         # validate response status code
         self.validate_response(response)
@@ -267,7 +215,8 @@ class DistrictApi(object):
         
         # Validate response
         self.validate_response_body(data)
-        
+
+        return data
         
     def get_all_districts(self):
         """

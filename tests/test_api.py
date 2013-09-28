@@ -3,9 +3,10 @@ import json
 from unittest import TestCase
 from mock import patch, Mock
 
-from district_api.api import DistrictApi, District, DistrictApiError, \
-    ApiUnavailable, LocationUnavailable, AuthorizationError, QuotaExceeded, \
-    BadRequest, InvalidResponse
+from district_api.api import DistrictApi, District
+from district_api.exceptions import DistrictApiError, ApiUnavailable, \
+    LocationUnavailable, AuthorizationError, QuotaExceeded, BadRequest, \
+    InvalidResponse
 
 class ApiTestCase(TestCase):
     api_key = 'dummy'
@@ -46,6 +47,30 @@ class ApiTestCase(TestCase):
         'Neighborhood': District('Upper West Side', 'Neighborhood', None),
         'State Senate': District('31', 'State Senate', 'http://graphics8.nytimes.com/packages/xml/represent/1396.xml'),
     }
+    success_response_str = """
+    {
+          "results": [
+            {
+              "district": "07",
+              "level": "Community District",
+              "kml_url": "http:\/\/graphics8.nytimes.com\/packages\/xml\/represent\/167.xml"
+            },
+            {
+              "district": "Upper West Side",
+              "level": "Neighborhood",
+              "kml_url": null
+            },
+            {
+              "district": "31",
+              "level": "State Senate",
+              "kml_url": "http:\/\/graphics8.nytimes.com\/packages\/xml\/represent\/1396.xml"
+            }
+          ],
+          "copyright": "Copyright (c) 2013 The New York Times Company. All Rights Reserved.",
+          "num_results": 7,
+          "status": "OK"
+        }
+    """
 
     def setUp(self):
         self.client = DistrictApi(self.api_key)
@@ -58,8 +83,13 @@ class ApiTestCase(TestCase):
         self.assertEqual(other_client.url, 'http://www.example.com')
 
     def test_validation(self):
-        with patch.object(self.client, 'get_data') as mock_get_data:
-            mock_get_data.return_value = {}
+        mock_get_data = Mock()
+        mock_get_data.return_value = {}
+        mock_construct = Mock()
+        mock_construct.return_value = {}
+        
+        with patch.multiple(self.client, get_data=mock_get_data, 
+            construct_single_location_data=mock_construct):
 
             with self.assertRaises(TypeError):
                 self.client.get_districts(12.3456, 10.432)
@@ -88,7 +118,7 @@ class ApiTestCase(TestCase):
         self.assertEqual(qv, {
                 'lat': 12.3456,
                 'lng': -10.432, 
-                'api_key': self.api_key,
+                'api-key': self.api_key,
             })
     
     @patch('requests.get')
@@ -98,13 +128,13 @@ class ApiTestCase(TestCase):
         get.assert_called_with(self.url, params={
                 'lat': 12.3456,
                 'lng': -10.432, 
-                'api_key': self.api_key,
+                'api-key': self.api_key,
             })
             
         self.client.send_request()
         self.assertTrue(get.called)
         get.assert_called_with(self.url, params={
-                'api_key': self.api_key,
+                'api-key': self.api_key,
             })
             
     def test_validate_status(self):
@@ -169,3 +199,15 @@ class ApiTestCase(TestCase):
                 'results': [ { 'a': 'b', }, { 'c': 'd', } ]
             })
     
+    @patch('requests.get')
+    def test_single_location_integration(self, get):
+        mock_resp = Mock()
+        mock_resp.text = self.success_response_str
+        mock_resp.status_code = 200
+        mock_resp.json.return_value = self.success_response_dict
+        
+        get.return_value = mock_resp
+        
+        districts = self.client.get_districts((12.3456, -10.432))
+            
+        self.assertEqual(districts, self.success_data)
