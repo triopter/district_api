@@ -4,4 +4,5 @@
 - Implement and test response parsing
 - Upload to Github
 - Flesh out setup.py and README w/ Github URLs
+- Create a Getting Started doc
 - Package for pypi?

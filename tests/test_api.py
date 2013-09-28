@@ -1,5 +1,5 @@
 from unittest import TestCase
-from requests import Request
+import requests
 from mock import patch
 
 from district_api.api import DistrictApi, District, DistrictApiError, \
@@ -7,13 +7,14 @@ from district_api.api import DistrictApi, District, DistrictApiError, \
 
 class ApiTestCase(TestCase):
     api_key = 'dummy'
+    url = 'http://api.nytimes.com/svc/politics/v2/districts.json'
 
     def setUp(self):
         self.client = DistrictApi(self.api_key)
         
     def test_construction(self):
         self.assertEqual(self.client.api_key, self.api_key)
-        self.assertEqual(self.client.url, 'http://api.nytimes.com/svc/politics/v2/districts.json')
+        self.assertEqual(self.client.url, self.url)
 
         other_client = DistrictApi(self.api_key, url='http://www.example.com')
         self.assertEqual(other_client.url, 'http://www.example.com')
@@ -48,4 +49,21 @@ class ApiTestCase(TestCase):
                 'lng': -10.432, 
                 'api_key': self.api_key,
             })
-        
+    
+    @patch('requests.get')
+    def test_send_request(self, get):
+        self.client.send_request(lat_lng=(12.3456, -10.432))
+        self.assertTrue(get.called)
+        get.assert_called_with(self.url, data={
+                'lat': 12.3456,
+                'lng': -10.432, 
+                'api_key': self.api_key,
+            })
+            
+        self.client.send_request()
+        self.assertTrue(get.called)
+        get.assert_called_with(self.url, data={
+                'api_key': self.api_key,
+            })
+            
+    
