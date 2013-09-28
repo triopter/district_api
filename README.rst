@@ -44,6 +44,13 @@ Use
 .. note:: 
    Refer to `NY Times Documentation <http://developer.nytimes.com/docs/districts_api>`_ for details on specific data that may be returned
 
+Test
+====
+
+::
+
+   py.test
+
 More Information
 ================
 

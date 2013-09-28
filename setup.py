@@ -9,7 +9,7 @@ try:
 except ImportError:
     from distutils.core import setup
 
-requires = ["requests >= 1.0.0"]
+requires = ["requests >= 2.0.0"]
 
 setup(
     name='district_api',
