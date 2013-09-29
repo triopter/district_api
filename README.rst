@@ -23,8 +23,6 @@ An additional list of dependencies for building the documentation and running te
 Configure
 =========
 
-::
-
 `Request an API key <http://developer.nytimes.com/apps/register/>`_ from the New York Times
 
 Use
@@ -38,7 +36,7 @@ Use
    >>> client = DistrictApi('my_api_key_here')
    
    >>> # Get the districts for a location in NYC
-   >>> lat_lng = (40.606031, -74.082686,)
+   >>> lat_lng = (40.606041, -74.082786,)
    >>> districts = client.get_districts(lat_lng)
    
    >>> # Use the returned data
