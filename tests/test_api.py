@@ -286,7 +286,6 @@ class ApiTestCase(TestCase):
     @patch('requests.get')
     def test_single_location_integration(self, get):
         mock_resp = Mock()
-        mock_resp.text = self.success_response_str
         mock_resp.status_code = 200
         mock_resp.json.return_value = self.success_response_dict
         
@@ -295,3 +294,15 @@ class ApiTestCase(TestCase):
         districts = self.client.get_districts((12.3456, -10.432))
             
         self.assertEqual(districts, self.success_data)
+    
+    @patch('requests.get')
+    def test_all_locations_integration(self, get):
+        mock_resp = Mock()
+        mock_resp.status_code = 200
+        mock_resp.json.return_value = self.all_dist_success_dict
+        
+        get.return_value = mock_resp
+        
+        districts = self.client.get_all_districts()
+            
+        self.assertEqual(districts, self.all_dist_success_data)
