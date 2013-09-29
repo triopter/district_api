@@ -60,6 +60,17 @@ Test
 
    py.test
 
+License
+=======
+
+districts_api is licensed under the LGPL.
+
+In plain English, that means that you are free to use it in original or modified form in your projects regardless of how your own projects are licensed.  Using districts_api WILL NOT affect the license of your project as a whole.
+
+But if you alter the districts_api code to use in your project, then when you release your project, you have to also contribute your districts_api changes back to the community.  Which you should do anyway because it's the Right Thing To Do (TM).
+
+The full language of the license is in LICENSE.TXT.
+
 More Information
 ================
 
