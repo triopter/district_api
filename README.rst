@@ -12,7 +12,7 @@ This module's only necessary external dependency is the requests module.
 ::
    
    pip install requests
-   pip install -e git+<URL>
+   pip install -e git+https://github.com/triopter/district_api.git
    
 An additional list of dependencies for building the documentation and running tests can be found in REQUIREMENTS_FULL.TXT:
 

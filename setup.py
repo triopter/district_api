@@ -24,7 +24,7 @@ setup(
     long_description=open('README.rst').read(),
     author='Noemi Millman',
     author_email='noemi@triopter.com',
-    url='http://proj.example.com/',
+    url='https://github.com/triopter/district_api.git',
     packages=['district_api'],
     install_requires=requires,
     license=open('LICENSE.TXT').read(),
