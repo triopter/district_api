@@ -30,8 +30,6 @@ Configure
 Use
 ===
 
-::
-
 .. code-block:: Python
 
    >>> from district_api.api import DistrictApi
