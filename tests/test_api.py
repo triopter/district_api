@@ -9,6 +9,7 @@ from district_api.exceptions import DistrictApiError, ApiUnavailable, \
     InvalidResponse
 
 class ApiTestCase(TestCase):
+    maxDiff = None
     api_key = 'dummy'
     url = 'http://api.nytimes.com/svc/politics/v2/districts.json'
     err_response_dict = { 
@@ -71,6 +72,66 @@ class ApiTestCase(TestCase):
           "status": "OK"
         }
     """
+    all_dist_success_dict = {
+        "results": [
+            {
+                "district": "10",
+                "level": "U.S. House",
+                "kml_url": "http://graphics8.nytimes.com/packages/xml/represent/1311.xml"
+            },
+            {
+                "district": "6",
+                "level": "U.S. House",
+                "kml_url": "http://graphics8.nytimes.com/packages/xml/represent/1310.xml"
+            },
+            {
+                "district": "10",
+                "level": "City Council",
+                "kml_url": "http://graphics8.nytimes.com/packages/xml/represent/1516.xml"
+            },
+            {
+                "district": "07",
+                "level": "City Council",
+                "kml_url": "http://graphics8.nytimes.com/packages/xml/represent/1513.xml"
+            }, 
+            {
+                "district": "Westerleigh",
+                "level": "Neighborhood",
+                "kml_url": None
+            },
+            {
+                "district": "West Brighton",
+                "level": "Neighborhood",
+                "kml_url": None
+            },
+            {
+                "district": "312",
+                "level": "Community District",
+                "kml_url": "http://graphics8.nytimes.com/packages/xml/represent/199.xml"
+            },
+        ],
+        "copyright": "Copyright (c) 2013 The New York Times Company. All Rights Reserved.",
+        "num_results": 470,
+        "status": "OK"
+    }
+    all_dist_success_data = {
+        'U.S. House': [ 
+            District('6', 'U.S. House',
+                'http://graphics8.nytimes.com/packages/xml/represent/1310.xml'),
+            District('10', 'U.S. House',
+                'http://graphics8.nytimes.com/packages/xml/represent/1311.xml'), ],
+        'Neighborhood': [ 
+            District('West Brighton', 'Neighborhood', None),
+            District('Westerleigh', 'Neighborhood', None), ],
+        'Community District': [
+            District('312', 'Community District', 
+                'http://graphics8.nytimes.com/packages/xml/represent/199.xml'), ],
+        'City Council': [
+            District('07', 'City Council', 
+                'http://graphics8.nytimes.com/packages/xml/represent/1513.xml'),
+            District('10', 'City Council', 
+                'http://graphics8.nytimes.com/packages/xml/represent/1516.xml'), ],
+    }
 
     def setUp(self):
         self.client = DistrictApi(self.api_key)
@@ -198,11 +259,33 @@ class ApiTestCase(TestCase):
             self.client.construct_single_location_data({
                 'results': [ { 'a': 'b', }, { 'c': 'd', } ]
             })
+            
+    def test_construct_all_locations(self):
+        # success case
+        districts = self.client.construct_all_locations_data(
+            self.all_dist_success_dict)
+        
+        # dict and defaultdict won't compare as equal, so we have to convert
+        # the returned defaultdict to a dict for comparison
+        self.assertEqual(districts, self.all_dist_success_data)
+        
+        with self.assertRaises(InvalidResponse):
+            self.client.construct_single_location_data(self.err_response_dict)
+        
+        with self.assertRaises(InvalidResponse):
+            self.client.construct_single_location_data({
+                'results': [ 1, 2, 3 ]
+            })
+            
+        with self.assertRaises(InvalidResponse):
+            self.client.construct_single_location_data({
+                'results': [ { 'a': 'b', }, { 'c': 'd', } ]
+            })
+        
     
     @patch('requests.get')
     def test_single_location_integration(self, get):
         mock_resp = Mock()
-        mock_resp.text = self.success_response_str
         mock_resp.status_code = 200
         mock_resp.json.return_value = self.success_response_dict
         
@@ -211,3 +294,15 @@ class ApiTestCase(TestCase):
         districts = self.client.get_districts((12.3456, -10.432))
             
         self.assertEqual(districts, self.success_data)
+    
+    @patch('requests.get')
+    def test_all_locations_integration(self, get):
+        mock_resp = Mock()
+        mock_resp.status_code = 200
+        mock_resp.json.return_value = self.all_dist_success_dict
+        
+        get.return_value = mock_resp
+        
+        districts = self.client.get_all_districts()
+            
+        self.assertEqual(districts, self.all_dist_success_data)

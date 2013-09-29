@@ -6,6 +6,8 @@
 """
 
 import requests
+from collections import defaultdict
+
 from district_api.exceptions import DistrictApiError, ApiUnavailable, \
     LocationUnavailable, AuthorizationError, QuotaExceeded, BadRequest, \
     InvalidResponse
@@ -218,6 +220,45 @@ class DistrictApi(object):
 
         return data
         
+    def construct_all_locations_data(self, data):
+        """
+        Converts dict containing list of district data dicts into dict of 
+        list of District objects.
+        
+        :param dict data: Dictionary of data parsed form API response JSON
+        :raises: InvalidResponse
+        
+        :returns: Dictionary indexed by electoral level, with each item 
+            containing a list of District objects for that level, sorted
+            by district name or number (District.district attribute)
+            
+        :rtype: dict
+        """
+        raw_districts = defaultdict(list)
+        districts = {}
+        
+        try:
+            results = data['results']
+        except KeyError:
+            raise InvalidResponse(data)
+        
+        # Populate our dict
+        try:
+            for result in results:
+                district = District(result['district'], result['level'], 
+                    result['kml_url'])
+                raw_districts[result['level']].append(district)
+                
+        except (KeyError, TypeError):
+            raise InvalidResponse(result)
+        
+        # Now let's sort each of our lists, and in the process convert back to
+        # a regular dict
+        for k, v in raw_districts.iteritems():
+            districts[k] = sorted(v)
+            
+        return districts
+        
     def get_all_districts(self):
         """
         Get information about all districts about which the API can provide data.
@@ -230,7 +271,10 @@ class DistrictApi(object):
             
         :rtype: dict
         """
-        return {}
+        data = self.get_data()
+        
+        # Convert returned data into Python objects
+        return self.construct_all_locations_data(data)
         
     def construct_single_location_data(self, data):
         """
